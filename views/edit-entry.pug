@@ -1,0 +1,196 @@
+doctype html
+html
+    head
+        title #{title}
+        meta(name='viewport', content='width=device-width, initial-scale=1')
+        meta(charset='UTF-8')
+
+        link(rel='stylesheet', href='../stylesheets/style.css')
+        link(rel='stylesheet', href='../stylesheets/jstyle.css')
+
+        body
+            include partials/header.pug
+            script.
+                /********************************************************************************************************************/
+                /********************************************************************************************************************/
+                /********************************************************************************************************************/
+                //BEGIN AJAX POST REQUEST
+                /********************************************************************************************************************/
+                //ajax POST request to /EditEntry (this POST req handled by edit-entry.js)
+                //this req sends ssn (primary key) to /EditEntry, which edit-entry.js is watching
+                //when edit-entry.js sees the POST req, it takes the ssn & scans the database for all info attached to ssn
+                //then edit-entry.js sends a res back to edit-entry.pug, which consists of all user data for that ssn
+                //edit-entry.pug then populates the Edit Entry form with all of that data
+                //upon clicking the 'edit entry' button, all of that data is put into localStorage, and
+                //we are redirected to 'success' page
+                //the 'success ' page will automatically retrieve this data from localStorage, and do a dyn.putItem of all
+                //applicant information into the database, overwriting the previous data associated with that ssn
+                //responseArray = [];
+                var ajaxCallEdit = new XMLHttpRequest();
+                ajaxCallEdit.onreadystatechange = function () {
+                if (ajaxCallEdit.readyState == 4 && ajaxCallEdit.status == 200) {
+                console.log('ajaxCallEdit.responseText = ');
+                console.log(ajaxCallEdit.responseText);
+                var jsonParsedData = ajaxCallEdit.responseText;
+                var jsonResponse = JSON.parse(jsonParsedData);
+                console.log('jsonResponse=');
+                console.log(jsonResponse);
+                console.log('jsonResponse[0]=');
+                console.log(jsonResponse[0]);
+                console.log('Object.values(jsonResponse)[0]=');
+                console.log(Object.values(jsonResponse)[0]);
+                console.log('Object.values(jsonResponse)[0][0]=');
+                console.log(Object.values(jsonResponse)[0][0]);
+                console.log('Object.values(jsonResponse)[0][0][\'date\']=');
+                console.log(Object.values(jsonResponse)[0][0]['date']);
+                console.log('Object.values(jsonResponse)[0][0][\'date\'][\'S\']=');
+                console.log(Object.values(jsonResponse)[0][0]['date']['S']);
+                //responseArray.push(Object.values(jsonResponse)[0][0]['date']['S']);
+                var response = Object.values(jsonResponse)[0][0];
+                //populate form fields with existing database data associated with the ssn in localStorage
+                function process_response(response) {
+                var frm = document.getElementById("form-ajax");
+                var i;
+                console.dir('response=');
+                console.dir(response);
+                for (i in response) {
+                if (i in frm.elements) {
+                frm.elements[i].value = response[i]['S'];
+                }
+                }
+                }
+                process_response(response);
+                } else {
+                console.log('ajaxCallEdit.readyState=');
+                console.log(ajaxCallEdit.readyState);
+                console.log('ajaxCallEdit.status=');
+                console.log(ajaxCallEdit.status);
+                }
+                }
+                ajaxCallEdit.open("POST", "/edit-entry/EditEntry", true);
+                console.log('post request to POPULATE EDIT ENTRY FORM sent FROM edit-entry.pug TO /edit-entry/EditEntry')
+                ajaxCallEdit.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+                ajaxCallEdit.send("ssn=" + localStorage['localstorage_ssn']); //send POST req consisting of ssn to /edit-entry/EditEntry,
+                //which edit-entry.js is watching. edit-entry.js takes the ssn & scans the database, sending back a res consisting of
+                //all user data associated with that ssn, and the 'process_response()' function populates the Edit Entry form with that
+                /********************************************************************************************************************/
+                //END AJAX POST REQUEST
+                /********************************************************************************************************************/
+                /********************************************************************************************************************/
+                /********************************************************************************************************************/
+                /********************************************************************************************************************/
+                console.log('localStorage==>');
+                console.log(localStorage);
+                console.log('localStorage[\'localstorage_ssn\']=');
+                console.log(localStorage['localstorage_ssn']);
+                /********************************************************************************************************************/
+            #container.main.center.depth
+                form#form-ajax(name='EditForm')
+                    img.center.w-10.stackable-s(src='../images/logo.png')
+                    h3.text-center Edit Entry
+                    input.w-10.center.stackable-xs.text-center(type='number', name='union_number', required)
+                    h4.text-center.stackable-m Affiliated With the International Brotherhood of Teamsters
+                    input(type='date', name='date', required)
+                    h3.text-center Name & Occupation
+                    input#lname.formItem.w-33.stackable-xs(type='text', name='lname', required)
+                    |
+                    |
+                    input#fname.formItem.w-33.stackable-xs(type='text', name='fname', required)
+                    |
+                    |
+                    input.formItem.w-33.stackable-s(type='text', name='mi', required)
+                    input.formItem.w-100.stackable-s(type='text', name='occupation', required)
+                    h3.text-center Contact Information
+                    input.formItem.w-75(type='text', name='address')
+                    |
+                    |
+                    input.formItem.w-25.stackable-s(type='text', name='phone', required)
+                    input.formItem.w-33.stackable-xs(type='text', name='city', required)
+                    |
+                    |
+                    input.formItem.w-33.stackable-xs(type='text', name='state', required)
+                    |
+                    |
+                    input.formItem.w-33.stackable-s(type='text', name='zip', required)
+                    h3.text-center Employer
+                    input.formItem.w-75.stackable-xs(type='text', name='employer', required)
+                    |
+                    |
+                    input.formItem.w-25.stackable-xs(type='date', name='employment_date', required)
+                    input.formItem.w-75(type='text', name='employer_address', required)
+                    |
+                    |
+                    input.formItem.w-25.stackable-s(type='text', name='employer_phone', required)
+                    input.formItem.w-33.stackable-xs(type='text', name='employer_city', required)
+                    |
+                    |
+                    input.formItem.w-33.stackable-xs(type='text', name='employer_state', required)
+                    |
+                    |
+                    input.formItem.w-33.stackable-s(type='text', name='employer_zip', required)
+                    h3.text-center Fee
+                    input.formItem.w-25.stackable-xs(type='number', name='fee', required)
+                    |
+                    |
+                    input.formItem.w-75.stackable-s(type='text', name='paid_to', required)
+                    h3.text-center Personal Information
+                    .scan-fields.formItem.w-50.stackable-s
+                        label(for='d-o-b') Date of Birth
+                        |
+                        |
+                        input#d-o-b(type='date', name='dob', required)
+                    .scan-fields.formItem.w-50.stackable-s
+                        label(for='s-s-n') Social Security Number
+                        |
+                        |
+                        input#s-s-n(type='text', name='ssn', required)
+                    label(for='previous') Previous member of the local Teamster Union?
+                    |
+                    |
+                    input.formItem.w-10.stackable-xs(id='previous' name='membership', required)
+                    //select(id='previous' name='membership', form='applicationForm', required)
+                        option(value='no') No
+                        option(value='yes') Yes
+                    br
+                    br
+                    p.formItem.inline-margin-1 If so, what Local Union Number?
+                    input.formItem.w-10.stackable-s(type='text', name='previous_union_number', required)
+                    br
+
+                button.center(onclick='editEntryLocalstorage();')
+                    span Edit Entry
+
+            script.
+                var editSubmissionArray = [];
+                function editEntryLocalstorage() {
+                //e.preventDefault();
+                localStorage.clear();
+                var ajaxFormEdit = document.getElementsByTagName('input');
+                console.log('ajaxForm data is ==>');
+                console.log(ajaxFormEdit);
+                console.log('ajaxFormEdit[0]=');
+                console.log(ajaxFormEdit[0]);
+                console.log('ajaxFormEdit[0].value=');
+                console.log(ajaxFormEdit[0].value);
+                var editArray = Array.from(ajaxFormEdit);
+                editArray.forEach((i) => {//for each element of the jsonResponse array,
+                //get corresponding string entered in the application form
+                console.log('====> i.value =')
+                console.log(i.value);
+                editSubmissionArray.push(i.value);
+                });
+                console.log('editSubmissionArray=');
+                console.log(editSubmissionArray);
+                localStorage.setItem('editedEntry', JSON.stringify(editSubmissionArray));
+                console.log('localStorage=');
+                console.log(localStorage);
+                console.log('Object.values(localStorage)=');
+                console.log(Object.values(localStorage));
+                console.log('Object.values(localStorage)[0]=');
+                console.log(Object.values(localStorage)[0]);
+                console.log('Object.values(localStorage)[0][0]=');
+                console.log(Object.values(localStorage)[0][0]);
+
+                //redirect to successful-edit page upon clicking "edit" button
+                window.location.replace("http://localhost:3000/successful-edit");
+                }

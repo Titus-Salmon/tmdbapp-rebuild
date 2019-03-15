@@ -1,0 +1,63 @@
+doctype html
+html
+    head
+        title #{title}
+        meta(name='viewport', content='width=device-width, initial-scale=1')
+        meta(charset='UTF-8')
+        link(rel='stylesheet', href='../stylesheets/jstyle.css')
+        script.
+            console.log('localStorage is now =====>');
+            console.log(localStorage);
+            console.log('localStorage[editedEntry]=');
+            console.log(localStorage['editedEntry']);
+            console.log('localStorage[editedEntry][0]=');
+            console.log(localStorage['editedEntry'][0]);
+            console.log('Object.keys(localStorage)=');
+            console.log(Object.keys(localStorage));
+            console.log('Object.values(localStorage)=');
+            console.log(Object.values(localStorage));
+            console.log('Object.values(localStorage)[0]=');
+            console.log(Object.values(localStorage)[0]);
+            var ls_conv2_arr = JSON.parse(localStorage.getItem('editedEntry'));
+            console.log('ls_conv2_arr=');
+            console.log(ls_conv2_arr);
+            var ajaxEditEntry = new XMLHttpRequest();
+            ajaxEditEntry.onreadystatechange = function () {
+            if (ajaxEditEntry.readyState == 4 && ajaxEditEntry.status == 200) {
+            console.log('ajaxEditEntry.responseText = ');
+            console.log(ajaxEditEntry.responseText);
+            }
+            }
+            ajaxEditEntry.open("POST", "/successful-edit/EditSuccess", true);
+            ajaxEditEntry.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+            ajaxEditEntry.send("union_number=" + ls_conv2_arr[0]
+            + "&date=" + ls_conv2_arr[1]
+            + "&lname=" + ls_conv2_arr[2]
+            + "&fname=" + ls_conv2_arr[3]
+            + "&mi=" + ls_conv2_arr[4]
+            + "&occupation=" + ls_conv2_arr[5]
+            + "&address=" + ls_conv2_arr[6]
+            + "&phone=" + ls_conv2_arr[7]
+            + "&city=" + ls_conv2_arr[8]
+            + "&state=" + ls_conv2_arr[9]
+            + "&zip=" + ls_conv2_arr[10]
+            + "&employer=" + ls_conv2_arr[11]
+            + "&employment_date=" + ls_conv2_arr[12]
+            + "&employer_address=" + ls_conv2_arr[13]
+            + "&employer_phone=" + ls_conv2_arr[14]
+            + "&employer_city=" + ls_conv2_arr[15]
+            + "&employer_state=" + ls_conv2_arr[16]
+            + "&employer_zip=" + ls_conv2_arr[17]
+            + "&fee=" + ls_conv2_arr[18]
+            + "&paid_to=" + ls_conv2_arr[19]
+            + "&dob=" + ls_conv2_arr[20]
+            + "&ssn=" + ls_conv2_arr[21]
+            + "&membership=" + ls_conv2_arr[22]
+            + "&previous_union_number=" + ls_conv2_arr[23]
+            );
+    body
+        include partials/header.pug
+        h3
+            | YOU HAVE SUCCESSFULLY EDITED APPLICANT DATA
+        h4
+            | Please use navigation panel above
