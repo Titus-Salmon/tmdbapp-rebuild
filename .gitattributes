@@ -1,1 +1,2 @@
-public/views/* linguist-vendored=false
+* linguist-vendored
+*.js linguist-vendored=false
