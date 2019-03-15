@@ -104,7 +104,7 @@ html
                     input.formItem.w-75(type='text', name='address')
                     |
                     |
-                    input.formItem.w-25.stackable-s(type='text', name='phone', required)
+                    input#phoneNumber1.formItem.w-25.stackable-s(type='text', name='phone', required)
                     input.formItem.w-33.stackable-xs(type='text', name='city', required)
                     |
                     |
@@ -120,7 +120,7 @@ html
                     input.formItem.w-75(type='text', name='employer_address', required)
                     |
                     |
-                    input.formItem.w-25.stackable-s(type='text', name='employer_phone', required)
+                    input#phoneNumber2.formItem.w-25.stackable-s(type='text', name='employer_phone', required)
                     input.formItem.w-33.stackable-xs(type='text', name='employer_city', required)
                     |
                     |
@@ -143,7 +143,7 @@ html
                         label(for='s-s-n') Social Security Number
                         |
                         |
-                        input#s-s-n(type='text', name='ssn', required)
+                        input#s-s-n(type='text', maxlength=9 name='ssn', required)
                     label(for='previous') Previous member of the local Teamster Union?
                     |
                     |
@@ -194,3 +194,75 @@ html
                 //redirect to successful-edit page upon clicking "edit" button
                 window.location.replace("http://localhost:3000/successful-edit");
                 }
+
+            script.
+                /******begin SSN AUTOFORMAT**************************************************************************************/
+                document.getElementById("s-s-n").onkeyup = function () { //auto formaatting for ssn entry
+                var val = this.value.replace(/\D/g, '');
+                var newVal = '';
+                if (val.length > 4) {
+                this.value = val;
+                }
+                if ((val.length > 3) && (val.length < 6)) {
+                newVal += val.substr(0, 3) + '-';
+                val = val.substr(3);
+                }
+                if (val.length > 5) {
+                newVal += val.substr(0, 3) + '-';
+                newVal += val.substr(3, 2) + '-';
+                val = val.substr(5);
+                }
+                newVal += val;
+                this.value = newVal;
+                };
+                /******end SSN AUTOFORMAT**************************************************************************************/
+
+                /******begin PHONE AUTOFORMAT**************************************************************************************/
+                // APPLICANT PHONENUMBER FIELD HAS ID of 'phoneNumber1' -- Format the phone number as the user types it
+                document.getElementById('phoneNumber1').addEventListener('keyup', function (evt) {
+                var phoneNumber1 = document.getElementById('phoneNumber1');
+                var charCode = (evt.which) ? evt.which : evt.keyCode;
+                phoneNumber1.value = phoneFormat(phoneNumber1.value);
+                });
+                // We need to manually format the phone number on page load
+                document.getElementById('phoneNumber1').value = phoneFormat(document.getElementById('phoneNumber1').value);
+
+
+                // EMPLOYER PHONENUMBER FIELD HAS ID of 'phoneNumber2' -- Format the phone number as the user types it
+                document.getElementById('phoneNumber2').addEventListener('keyup', function (evt) {
+                var phoneNumber2 = document.getElementById('phoneNumber2');
+                var charCode = (evt.which) ? evt.which : evt.keyCode;
+                phoneNumber2.value = phoneFormat(phoneNumber2.value);
+                });
+                // We need to manually format the phone number on page load
+                document.getElementById('phoneNumber2').value = phoneFormat(document.getElementById('phoneNumber2').value);
+
+
+                // A function to determine if the pressed key is an integer
+                function numberPressed(evt) {
+                var charCode = (evt.which) ? evt.which : evt.keyCode;
+                if (charCode > 31 && (charCode < 48 || charCode > 57) && (charCode < 36 || charCode > 40)) {
+                return false;
+                }
+                return true;
+                }
+                // A function to format text to look like a phone number
+                function phoneFormat(input) {
+                // Strip all characters from the input except digits
+                input = input.replace(/\D/g, '');
+                // Trim the remaining input to ten characters, to preserve phone number format
+                input = input.substring(0, 10);
+                // Based upon the length of the string, we add formatting as necessary
+                var size = input.length;
+                if (size == 0) {
+                input = input;
+                } else if (size < 4) {
+                input = '(' + input;
+                } else if (size < 7) {
+                input = '(' + input.substring(0, 3) + ') ' + input.substring(3, 6);
+                } else {
+                input = '(' + input.substring(0, 3) + ') ' + input.substring(3, 6) + ' - ' + input.substring(6, 10);
+                }
+                return input;
+                }
+                /******end PHONE AUTOFORMAT**************************************************************************************/

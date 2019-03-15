@@ -184,8 +184,8 @@ html
           label(for='s-s-n') Social Security Number
           |
           |
-          input#s-s-n(type='text', maxlength='11', placeholder='Social Security Number', name='postBodyArray', required)
-        
+          input#s-s-n(type='text', maxlength=9, placeholder='Social Security Number', name='postBodyArray', required)
+
         label(for='previous') Previous member of the local Teamster Union?
         |
         |
@@ -220,6 +220,7 @@ html
       this.value = newVal;
       };
       /******end SSN AUTOFORMAT**************************************************************************************/
+
       /******begin PHONE AUTOFORMAT**************************************************************************************/
       // APPLICANT PHONENUMBER FIELD HAS ID of 'phoneNumber1' -- Format the phone number as the user types it
       document.getElementById('phoneNumber1').addEventListener('keyup', function (evt) {
@@ -229,6 +230,8 @@ html
       });
       // We need to manually format the phone number on page load
       document.getElementById('phoneNumber1').value = phoneFormat(document.getElementById('phoneNumber1').value);
+
+
       // EMPLOYER PHONENUMBER FIELD HAS ID of 'phoneNumber2' -- Format the phone number as the user types it
       document.getElementById('phoneNumber2').addEventListener('keyup', function (evt) {
       var phoneNumber2 = document.getElementById('phoneNumber2');
@@ -236,7 +239,9 @@ html
       phoneNumber2.value = phoneFormat(phoneNumber2.value);
       });
       // We need to manually format the phone number on page load
-      document.getElementById('phoneNumber1').value = phoneFormat(document.getElementById('phoneNumber1').value);
+      document.getElementById('phoneNumber2').value = phoneFormat(document.getElementById('phoneNumber1').value);
+
+
       // A function to determine if the pressed key is an integer
       function numberPressed(evt) {
       var charCode = (evt.which) ? evt.which : evt.keyCode;
