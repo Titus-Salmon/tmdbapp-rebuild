@@ -10,6 +10,7 @@ const scanRouter = require('./routes/scan'); //t0d
 const scan_edit_redirectRouter = require('./routes/scan-edit-redirect'); //t0d
 const edit_entryRouter = require('./routes/edit-entry'); //t0d
 const edit_success_Router = require('./routes/successful-edit'); //t0d
+const delete_success_Router = require('./routes/successful-delete'); //t0d
 
 const helmet = require('helmet'); //t0d //Helmet helps you secure your Express apps by setting various HTTP headers.
 const bodyParser = require('body-parser'); //t0d //Node.js body parsing middleware. Parse incoming request bodies in a
@@ -33,11 +34,13 @@ app.use('/scan', scanRouter); //t0d
 app.use('/scan-edit-redirect', scan_edit_redirectRouter); //t0d
 app.use('/edit-entry', edit_entryRouter); //t0d
 app.use('/successful-edit', edit_success_Router); //t0d
+app.use('/successful-delete', delete_success_Router); //t0d
 
 app.use(helmet()); //t0d
 app.use(bodyParser.urlencoded({ //t0d //bodyParser = middleware
     extended: false
 }));
+
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
