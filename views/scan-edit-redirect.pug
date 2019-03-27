@@ -6,6 +6,11 @@ html
         meta(charset='UTF-8')
         link(rel='stylesheet', href='/Tablefilter-master/dist/tablefilter/style/tablefilter.css')
         script(src='Tablefilter-master/dist/tablefilter/tablefilter.js')
+
+        script.
+            localStorage.clear(); //clear localStorage, so that if 'Edit' button is clicked without selecting a row
+            //in scan results table, localStorage will be empty, and we can alert user to select a row.
+
     body
         include partials/header.pug
         #tableHideShow
@@ -37,6 +42,8 @@ html
                         button.flt(type='button', onclick='showScanResults();') Search
                     td
                         button.flt(type='button', onclick='sendEditData();') Edit
+                    td
+                        button.flt(type='button', onclick='deleteData();') Delete
         br
         br
         table#resultsTable(style='display: none !important')
@@ -60,23 +67,24 @@ html
                     th
         script.
             var filtersConfig = {
-            base_path: 'Tablefilter-master/dist/tablefilter/',
-            paging: {
-            length: 20,
-            results_per_page: ['Results per page ', [20, 25, 30, 35, 40, 45, 50]]
-            },
-            grid_layout: true,
-            alternate_rows: false,
-            btn_reset: true,
-            rows_counter: true,
-            rows_counter_text: "Displayed rows: ",
-            loader: true,
-            status_bar: true,
-            col_types: ['string', 'string', 'string', 'string', 'string', 'string', 'string'],
-            extensions: [{
-            name: 'sort',
-            }],
+                base_path: 'Tablefilter-master/dist/tablefilter/',
+                paging: {
+                    length: 20,
+                    results_per_page: ['Results per page ', [20, 25, 30, 35, 40, 45, 50]]
+                },
+                grid_layout: true,
+                alternate_rows: false,
+                btn_reset: true,
+                rows_counter: true,
+                rows_counter_text: "Displayed rows: ",
+                loader: true,
+                status_bar: true,
+                col_types: ['string', 'string', 'string', 'string', 'string', 'string', 'string'],
+                extensions: [{
+                    name: 'sort',
+                }],
             };
+
             var tf = new TableFilter('resultsTable', filtersConfig);
             console.log('(document.getElementById("resultsTableBody").rows[0] ~~~~~~~> ');
             console.log((document.getElementById("resultsTableBody").rows[0]));
@@ -88,168 +96,211 @@ html
             console.log(Array.from(document.getElementById("resultsTableBody").rows[0]).length);
             console.log('(document.getElementById("resultsTableBody").rows[0].cells ===> ');
             console.log((document.getElementById("resultsTableBody").rows[0].cells));
+
+
             function clearTable() {
-            tf.clearFilters(); //needed to reset the bottom pagination fields ('Rows', 'Page', and 'Results per page'),
-            //otherwise they don't update correctly (tablefilter method)
-            if (document.getElementById("resultsTableBody").rows.length > 0) {
-            //if table has any data in it
-            tf.destroy(); //1st, destroy tablefilter table (tablefilter method)
-            if (document.getElementById("resultsTableBody").rows[0].cells.length > 0) {
-            //clear the table (not connected to tablefilter)
-            var tableBody = document.getElementById("resultsTableBody");
-            tableBody.innerHTML = "";
+                tf.clearFilters(); //needed to reset the bottom pagination fields ('Rows', 'Page', and 'Results per page'),
+                //otherwise they don't update correctly (tablefilter method)
+                if (document.getElementById("resultsTableBody").rows.length > 0) {
+                    //if table has any data in it
+                    tf.destroy(); //1st, destroy tablefilter table (tablefilter method)
+                    if (document.getElementById("resultsTableBody").rows[0].cells.length > 0) {
+                        //clear the table (not connected to tablefilter)
+                        var tableBody = document.getElementById("resultsTableBody");
+                        tableBody.innerHTML = "";
+                    }
+                }
+                console.log('(document.getElementById("resultsTableBody").rows.length_inside_clearTable ~~~~~~~> ');
+                console.log((document.getElementById("resultsTableBody").rows.length));
             }
-            }
-            console.log('(document.getElementById("resultsTableBody").rows.length_inside_clearTable ~~~~~~~> ');
-            console.log((document.getElementById("resultsTableBody").rows.length));
-            }
+
+
             /**************************************************************************************************/
             /*deleteFirstRow is needed because tablefilter's grid-layout option kept inserting additional empty
             row upon consecutive searches*/
             function deleteFirstRow() {
-            if (document.getElementById("resultsTableBody").rows.length > 0) {
-            document.getElementById("resultsTableBody").deleteRow(0);
+                if (document.getElementById("resultsTableBody").rows.length > 0) {
+                    document.getElementById("resultsTableBody").deleteRow(0);
+                }
             }
-            }
+
+
             /**************************************************************************************************/
             //function clearCaption() {
             //    document.getElementById("resultsTable").deleteCaption(); //clears table caption on click, otherwise caption gets duplicated
             //}
+
+
             function showScanResults() {
-            clearTable();
-            deleteFirstRow();
-            var soc = document.getElementById("social-security").value;
-            var dob = document.getElementById("dob").value;
-            var lastName = document.getElementById("last-name").value;
-            var firstName = document.getElementById("first-name").value;
-            var occ = document.getElementById("occupation").value;
-            var empl = document.getElementById("emp").value;
-            var appDate = document.getElementById("application-date").value;
-            var ajaxCall = new XMLHttpRequest();
-            ajaxCall.onreadystatechange = function () {
-            if (ajaxCall.readyState == 4 && ajaxCall.status == 200) {
-            console.log('ajaxCall.responseText = ');
-            console.log(ajaxCall.responseText);
-            var jsonParsedData = ajaxCall.responseText;
-            var jsonResponse = JSON.parse(jsonParsedData);
-            console.log('jsonResponse =');
-            console.log(jsonResponse);
-            console.log('jsonResponse.length =');
-            console.log(jsonResponse.length);
-            console.log('jsonResponse[0].length =');
-            console.log(jsonResponse[0].length);
-            if (jsonResponse[0].length == 0) { //if search results are empty, send alert, then reload page
-            alert('NO SEARCH RESULTS');
-            location.reload();
+                clearTable();
+                deleteFirstRow();
+
+                var soc = document.getElementById("social-security").value;
+                var dob = document.getElementById("dob").value;
+                var lastName = document.getElementById("last-name").value;
+                var firstName = document.getElementById("first-name").value;
+                var occ = document.getElementById("occupation").value;
+                var empl = document.getElementById("emp").value;
+                var appDate = document.getElementById("application-date").value;
+
+                var ajaxCall = new XMLHttpRequest();
+
+                ajaxCall.onreadystatechange = function () {
+                    if (ajaxCall.readyState == 4 && ajaxCall.status == 200) {
+                        console.log('ajaxCall.responseText = ');
+                        console.log(ajaxCall.responseText);
+                        var jsonParsedData = ajaxCall.responseText;
+                        var jsonResponse = JSON.parse(jsonParsedData);
+                        console.log('jsonResponse =');
+                        console.log(jsonResponse);
+                        console.log('jsonResponse.length =');
+                        console.log(jsonResponse.length);
+                        console.log('jsonResponse[0].length =');
+                        console.log(jsonResponse[0].length);
+                        if (jsonResponse[0].length == 0) { //if search results are empty, send alert, then reload page
+                            alert('NO SEARCH RESULTS');
+                            location.reload();
+                        }
+                        jsonResponse.forEach((i) => { //for each element of the jsonResponse array,
+                            //get corresponding string entered in the application form
+                            console.log("*************************************************");
+                            console.log('~~~~~> i =')
+                            console.log(i);
+                            i.forEach((n) => {
+                                console.log('///////////////////');
+                                console.log(n);
+                                var dob_entry = n['dob']['S'];
+                                var ssn_entry = n['ssn']['S'];
+                                var lname_entry = n['lname']['S'];
+                                var fname_entry = n['fname']['S'];
+                                var occ_entry = n['occupation']['S'];
+                                var empl_entry = n['employer']['S'];
+                                var appDate_entry = n['date']['S'];
+                                var tableBody = document.getElementById("resultsTableBody");
+                                var row = tableBody.insertRow(-1);
+                                var cellSSN = row.insertCell(-1);
+                                var cellDOB = row.insertCell(-1);
+                                var cellLname = row.insertCell(-1);
+                                var cellFname = row.insertCell(-1);
+                                var cellOcc = row.insertCell(-1);
+                                var cellEmp = row.insertCell(-1);
+                                var cellAppDate = row.insertCell(-1);
+                                cellSSN.innerHTML = ssn_entry;
+                                cellDOB.innerHTML = dob_entry;
+                                cellLname.innerHTML = lname_entry;
+                                cellFname.innerHTML = fname_entry;
+                                cellOcc.innerHTML = occ_entry;
+                                cellEmp.innerHTML = empl_entry;
+                                cellAppDate.innerHTML = appDate_entry;
+                            });
+                        });
+                        /*******tablefilter.js*************************************************************/
+                        tf.init(); //tf.init() must be down here, otherwise if it is up with the rest of the tablefilter.js script,
+                        //search results keep duplicating table components when clicking 'search' button
+                        /*******tablefilter.js*************************************************************/
+                        var ResultsTableBody = document.getElementById("resultsTableBody");
+                        console.log('ResultsTableBody = ');
+                        console.log(ResultsTableBody);
+                        console.log('ResultsTableBody[0] = ');
+                        console.log(ResultsTableBody[0]);
+                        var tbl = document.getElementById("resultsTable");
+                        var filterRow = tbl.childNodes[2].childNodes[1];
+                        console.log('tbl = ');
+                        console.log(tbl);
+                        if (tbl.childNodes[2].childNodes.length > 4) { //if there is more than 1 <tr class="fltrow"></tr>
+                            tbl.childNodes[2].removeChild(filterRow); //delete it
+                        }
+                        console.log('tbl.childNodes = ');
+                        console.log(tbl.childNodes);
+                        console.log('tbl.childNodes[2].childNodes = ');
+                        console.log(tbl.childNodes[2].childNodes);
+                        console.log('tbl.childNodes[2].childNodes.length = ');
+                        console.log(tbl.childNodes[2].childNodes.length);
+                        /*************************************************************************************/
+                        //BEGIN highlights clicked row & puts that row's ssn in localStorage
+                        /*************************************************************************************/
+                        function onRowClick(tableId, callback) {
+                            var table = document.getElementById(tableId),
+                                rows = table.getElementsByTagName("tr"),
+                                i;
+                            for (i = 0; i < rows.length; i++) {
+                                table.rows[i].onclick = function (row) {
+                                    return function () {
+                                        callback(row);
+                                    };
+                                }(table.rows[i]);
+                            }
+                        };
+                        onRowClick("resultsTable", function (row) {
+                            var value = row.getElementsByTagName("td")[0].innerHTML;
+                            //localStorage.clear();
+                            localStorage.setItem('localstorage_ssn', value);
+                            console.log("value>>>>>", value);
+                            if (!row.hilite) {
+                                unhighlight();
+                                row.origColor = row.style.backgroundColor;
+                                row.style.backgroundColor = '#BCD4EC';
+                                row.hilite = true;
+                            } else {
+                                row.style.backgroundColor = row.origColor;
+                                row.hilite = false;
+                            }
+                        });
+
+                        function unhighlight() {
+                            var table = document.getElementById('resultsTable');
+                            for (var i = 0; i < table.rows.length; i++) {
+                                var row = table.rows[i];
+                                row.style.backgroundColor = row.origColor;
+                                row.hilite = false;
+                            }
+                        }
+                        /*************************************************************************************/
+                        //END highlights clicked row & puts that row's ssn in localStorage
+                        /*************************************************************************************/
+                    }
+                    document.getElementById("resultsTable").style.display = 'inline-block';
+                };
+
+                ajaxCall.open("POST", "/scan-edit-redirect/ShowDB", true);
+                console.log('post request to VIEW THE DB sent from scan-edit-redirect.hbs to /scan-edit-redirect/ShowDB')
+                ajaxCall.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+                ajaxCall.send("ssn=" + soc + "&dob=" + dob + "&lname=" + lastName + "&fname=" + firstName + "&occupation=" + occ + "&employer=" + empl + "&date=" + appDate);
+                console.log('ajaxCall =');
+                console.log(ajaxCall);
             }
-            jsonResponse.forEach((i) => {//for each element of the jsonResponse array,
-            //get corresponding string entered in the application form
-            console.log("*************************************************");
-            console.log('~~~~~> i =')
-            console.log(i);
-            i.forEach((n) => {
-            console.log('///////////////////');
-            console.log(n);
-            var dob_entry = n['dob']['S'];
-            var ssn_entry = n['ssn']['S'];
-            var lname_entry = n['lname']['S'];
-            var fname_entry = n['fname']['S'];
-            var occ_entry = n['occupation']['S'];
-            var empl_entry = n['employer']['S'];
-            var appDate_entry = n['date']['S'];
-            var tableBody = document.getElementById("resultsTableBody");
-            var row = tableBody.insertRow(-1);
-            var cellSSN = row.insertCell(-1);
-            var cellDOB = row.insertCell(-1);
-            var cellLname = row.insertCell(-1);
-            var cellFname = row.insertCell(-1);
-            var cellOcc = row.insertCell(-1);
-            var cellEmp = row.insertCell(-1);
-            var cellAppDate = row.insertCell(-1);
-            cellSSN.innerHTML = ssn_entry;
-            cellDOB.innerHTML = dob_entry;
-            cellLname.innerHTML = lname_entry;
-            cellFname.innerHTML = fname_entry;
-            cellOcc.innerHTML = occ_entry;
-            cellEmp.innerHTML = empl_entry;
-            cellAppDate.innerHTML = appDate_entry;
-            });
-            });
-            /*******tablefilter.js*************************************************************/
-            tf.init(); //tf.init() must be down here, otherwise if it is up with the rest of the tablefilter.js script,
-            //search results keep duplicating table components when clicking 'search' button
-            /*******tablefilter.js*************************************************************/
-            var ResultsTableBody = document.getElementById("resultsTableBody");
-            console.log('ResultsTableBody = ');
-            console.log(ResultsTableBody);
-            console.log('ResultsTableBody[0] = ');
-            console.log(ResultsTableBody[0]);
-            var tbl = document.getElementById("resultsTable");
-            var filterRow = tbl.childNodes[2].childNodes[1];
-            console.log('tbl = ');
-            console.log(tbl);
-            if (tbl.childNodes[2].childNodes.length > 4) {//if there is more than 1 <tr class="fltrow"></tr>
-            tbl.childNodes[2].removeChild(filterRow); //delete it
-            }
-            console.log('tbl.childNodes = ');
-            console.log(tbl.childNodes);
-            console.log('tbl.childNodes[2].childNodes = ');
-            console.log(tbl.childNodes[2].childNodes);
-            console.log('tbl.childNodes[2].childNodes.length = ');
-            console.log(tbl.childNodes[2].childNodes.length);
-            /*************************************************************************************/
-            //BEGIN highlights clicked row & puts that row's ssn in localStorage
-            /*************************************************************************************/
-            function onRowClick(tableId, callback) {
-            var table = document.getElementById(tableId),
-            rows = table.getElementsByTagName("tr"),
-            i;
-            for (i = 0; i < rows.length; i++) {
-            table.rows[i].onclick = function (row) {
-            return function () {
-            callback(row);
-            };
-            }(table.rows[i]);
-            }
-            };
-            onRowClick("resultsTable", function (row) {
-            var value = row.getElementsByTagName("td")[0].innerHTML;
-            localStorage.clear();
-            localStorage.setItem('localstorage_ssn', value);
-            console.log("value>>>>>", value);
-            if (!row.hilite) {
-            unhighlight();
-            row.origColor = row.style.backgroundColor;
-            row.style.backgroundColor = '#BCD4EC';
-            row.hilite = true;
-            }
-            else {
-            row.style.backgroundColor = row.origColor;
-            row.hilite = false;
-            }
-            });
-            function unhighlight() {
-            var table = document.getElementById('resultsTable');
-            for (var i = 0; i < table.rows.length; i++) {
-            var row = table.rows[i];
-            row.style.backgroundColor = row.origColor;
-            row.hilite = false;
-            }
-            }
-            /*************************************************************************************/
-            //END highlights clicked row & puts that row's ssn in localStorage
-            /*************************************************************************************/
-            }
-            document.getElementById("resultsTable").style.display = 'inline-block';
-            };
-            ajaxCall.open("POST", "/scan-edit-redirect/ShowDB", true);
-            console.log('post request to VIEW THE DB sent from scan-edit-redirect.hbs to /scan-edit-redirect/ShowDB')
-            ajaxCall.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-            ajaxCall.send("ssn=" + soc + "&dob=" + dob + "&lname=" + lastName + "&fname=" + firstName + "&occupation=" + occ + "&employer=" + empl + "&date=" + appDate);
-            console.log('ajaxCall =');
-            console.log(ajaxCall);
-            }
+
+
             function sendEditData() {
-            //redirect to Edit form upon clicking "edit" button
-            window.location.replace("http://localhost:3000/edit-entry");
+                //redirect to Edit form upon clicking "edit" button
+                console.log('localStorage=');
+                console.log(localStorage);
+                if (localStorage.length == 0) {
+                    alert('Please select an entry to edit');
+                } else {
+                    window.location.replace("http://localhost:3000/edit-entry");
+                }
+            };
+
+            function deleteData() { //puts ssn of selected entry into localStorage & redirects to successful-delete page,
+                //where successful-delete.js will perform dyn.deleteItem
+                console.log('localStorage=');
+                console.log(localStorage);
+                var ssnToDelete = localStorage.getItem('localstorage_ssn');
+                console.log('ssnToDelete=');
+                console.log(ssnToDelete); 
+
+                //disable page redirect if delete button clicked without selecting anything
+                if (localStorage.length == 0) {
+                    alert('You must select an entry to delete');
+                    return false;
+                }
+
+                var deleteConfirmation = confirm("DELETE ENTRY - THIS CANNOT BE UNDONE: ARE YOU SURE?");
+
+                if (deleteConfirmation != false) {
+                //redirect to Delete page upon clicking "delete" button
+                window.location.replace("http://localhost:3000/successful-delete");
+                }
             }
+ 

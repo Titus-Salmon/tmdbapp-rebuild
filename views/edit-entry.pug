@@ -28,44 +28,44 @@ html
                 //responseArray = [];
                 var ajaxCallEdit = new XMLHttpRequest();
                 ajaxCallEdit.onreadystatechange = function () {
-                if (ajaxCallEdit.readyState == 4 && ajaxCallEdit.status == 200) {
-                console.log('ajaxCallEdit.responseText = ');
-                console.log(ajaxCallEdit.responseText);
-                var jsonParsedData = ajaxCallEdit.responseText;
-                var jsonResponse = JSON.parse(jsonParsedData);
-                console.log('jsonResponse=');
-                console.log(jsonResponse);
-                console.log('jsonResponse[0]=');
-                console.log(jsonResponse[0]);
-                console.log('Object.values(jsonResponse)[0]=');
-                console.log(Object.values(jsonResponse)[0]);
-                console.log('Object.values(jsonResponse)[0][0]=');
-                console.log(Object.values(jsonResponse)[0][0]);
-                console.log('Object.values(jsonResponse)[0][0][\'date\']=');
-                console.log(Object.values(jsonResponse)[0][0]['date']);
-                console.log('Object.values(jsonResponse)[0][0][\'date\'][\'S\']=');
-                console.log(Object.values(jsonResponse)[0][0]['date']['S']);
-                //responseArray.push(Object.values(jsonResponse)[0][0]['date']['S']);
-                var response = Object.values(jsonResponse)[0][0];
-                //populate form fields with existing database data associated with the ssn in localStorage
-                function process_response(response) {
-                var frm = document.getElementById("form-ajax");
-                var i;
-                console.dir('response=');
-                console.dir(response);
-                for (i in response) {
-                if (i in frm.elements) {
-                frm.elements[i].value = response[i]['S'];
-                }
-                }
-                }
-                process_response(response);
-                } else {
-                console.log('ajaxCallEdit.readyState=');
-                console.log(ajaxCallEdit.readyState);
-                console.log('ajaxCallEdit.status=');
-                console.log(ajaxCallEdit.status);
-                }
+                    if (ajaxCallEdit.readyState == 4 && ajaxCallEdit.status == 200) {
+                        console.log('ajaxCallEdit.responseText = ');
+                        console.log(ajaxCallEdit.responseText);
+                        var jsonParsedData = ajaxCallEdit.responseText;
+                        var jsonResponse = JSON.parse(jsonParsedData);
+                        console.log('jsonResponse=');
+                        console.log(jsonResponse);
+                        console.log('jsonResponse[0]=');
+                        console.log(jsonResponse[0]);
+                        console.log('Object.values(jsonResponse)[0]=');
+                        console.log(Object.values(jsonResponse)[0]);
+                        console.log('Object.values(jsonResponse)[0][0]=');
+                        console.log(Object.values(jsonResponse)[0][0]);
+                        console.log('Object.values(jsonResponse)[0][0][\'date\']=');
+                        console.log(Object.values(jsonResponse)[0][0]['date']);
+                        console.log('Object.values(jsonResponse)[0][0][\'date\'][\'S\']=');
+                        console.log(Object.values(jsonResponse)[0][0]['date']['S']);
+                        //responseArray.push(Object.values(jsonResponse)[0][0]['date']['S']);
+                        var response = Object.values(jsonResponse)[0][0];
+                        //populate form fields with existing database data associated with the ssn in localStorage
+                        function process_response(response) {
+                            var frm = document.getElementById("form-ajax");
+                            var i;
+                            console.dir('response=');
+                            console.dir(response);
+                            for (i in response) {
+                                if (i in frm.elements) {
+                                    frm.elements[i].value = response[i]['S'];
+                                }
+                            }
+                        }
+                        process_response(response);
+                    } else {
+                        console.log('ajaxCallEdit.readyState=');
+                        console.log(ajaxCallEdit.readyState);
+                        console.log('ajaxCallEdit.status=');
+                        console.log(ajaxCallEdit.status);
+                    }
                 }
                 ajaxCallEdit.open("POST", "/edit-entry/EditEntry", true);
                 console.log('post request to POPULATE EDIT ENTRY FORM sent FROM edit-entry.pug TO /edit-entry/EditEntry')
@@ -87,9 +87,9 @@ html
             #container.main.center.depth
                 form#form-ajax(name='EditForm')
                     img.center.w-10.stackable-s(src='../images/logo.png')
-                    h3.text-center Edit Entry
+                    h3.text-center Local Union No.
                     input.w-10.center.stackable-xs.text-center(type='number', name='union_number', required)
-                    h4.text-center.stackable-m Affiliated With the International Brotherhood of Teamsters
+                    h4.text-center.stackable-m Modify entry fields, then click 'Submit' button below
                     input(type='date', name='date', required)
                     h3.text-center Name & Occupation
                     input#lname.formItem.w-33.stackable-xs(type='text', name='lname', required)
@@ -104,7 +104,7 @@ html
                     input.formItem.w-75(type='text', name='address')
                     |
                     |
-                    input.formItem.w-25.stackable-s(type='text', name='phone', required)
+                    input#phoneNumber1.formItem.w-25.stackable-s(type='text', name='phone', required)
                     input.formItem.w-33.stackable-xs(type='text', name='city', required)
                     |
                     |
@@ -120,7 +120,7 @@ html
                     input.formItem.w-75(type='text', name='employer_address', required)
                     |
                     |
-                    input.formItem.w-25.stackable-s(type='text', name='employer_phone', required)
+                    input#phoneNumber2.formItem.w-25.stackable-s(type='text', name='employer_phone', required)
                     input.formItem.w-33.stackable-xs(type='text', name='employer_city', required)
                     |
                     |
@@ -143,7 +143,7 @@ html
                         label(for='s-s-n') Social Security Number
                         |
                         |
-                        input#s-s-n(type='text', name='ssn', required)
+                        input#s-s-n(type='text', minlength=11, maxlength=11, name='ssn', required)
                     label(for='previous') Previous member of the local Teamster Union?
                     |
                     |
@@ -158,39 +158,112 @@ html
                     br
 
                 button.center(onclick='editEntryLocalstorage();')
-                    span Edit Entry
+                    span Submit
 
             script.
                 var editSubmissionArray = [];
-                function editEntryLocalstorage() {
-                //e.preventDefault();
-                localStorage.clear();
-                var ajaxFormEdit = document.getElementsByTagName('input');
-                console.log('ajaxForm data is ==>');
-                console.log(ajaxFormEdit);
-                console.log('ajaxFormEdit[0]=');
-                console.log(ajaxFormEdit[0]);
-                console.log('ajaxFormEdit[0].value=');
-                console.log(ajaxFormEdit[0].value);
-                var editArray = Array.from(ajaxFormEdit);
-                editArray.forEach((i) => {//for each element of the jsonResponse array,
-                //get corresponding string entered in the application form
-                console.log('====> i.value =')
-                console.log(i.value);
-                editSubmissionArray.push(i.value);
-                });
-                console.log('editSubmissionArray=');
-                console.log(editSubmissionArray);
-                localStorage.setItem('editedEntry', JSON.stringify(editSubmissionArray));
-                console.log('localStorage=');
-                console.log(localStorage);
-                console.log('Object.values(localStorage)=');
-                console.log(Object.values(localStorage));
-                console.log('Object.values(localStorage)[0]=');
-                console.log(Object.values(localStorage)[0]);
-                console.log('Object.values(localStorage)[0][0]=');
-                console.log(Object.values(localStorage)[0][0]);
 
-                //redirect to successful-edit page upon clicking "edit" button
-                window.location.replace("http://localhost:3000/successful-edit");
+                function editEntryLocalstorage() {
+                    //e.preventDefault();
+                    localStorage.clear();
+                    var ajaxFormEdit = document.getElementsByTagName('input');
+                    console.log('ajaxForm data is ==>');
+                    console.log(ajaxFormEdit);
+                    console.log('ajaxFormEdit[0]=');
+                    console.log(ajaxFormEdit[0]);
+                    console.log('ajaxFormEdit[0].value=');
+                    console.log(ajaxFormEdit[0].value);
+                    var editArray = Array.from(ajaxFormEdit);
+                    editArray.forEach((i) => { //for each element of the jsonResponse array,
+                        //get corresponding string entered in the application form
+                        console.log('====> i.value =')
+                        console.log(i.value);
+                        editSubmissionArray.push(i.value);
+                    });
+                    console.log('editSubmissionArray=');
+                    console.log(editSubmissionArray);
+                    localStorage.setItem('editedEntry', JSON.stringify(editSubmissionArray));
+                    console.log('localStorage=');
+                    console.log(localStorage);
+                    console.log('Object.values(localStorage)=');
+                    console.log(Object.values(localStorage));
+                    console.log('Object.values(localStorage)[0]=');
+                    console.log(Object.values(localStorage)[0]);
+                    console.log('Object.values(localStorage)[0][0]=');
+                    console.log(Object.values(localStorage)[0][0]);
+
+                    //redirect to successful-edit page upon clicking "edit" button
+                    window.location.replace("http://localhost:3000/successful-edit");
                 }
+
+            script.
+                /******begin SSN AUTOFORMAT**************************************************************************************/
+                document.getElementById("s-s-n").onkeyup = function () { //auto formaatting for ssn entry
+                    var val = this.value.replace(/\D/g, '');
+                    var newVal = '';
+                    if (val.length > 4) {
+                        this.value = val;
+                    }
+                    if ((val.length > 3) && (val.length < 6)) {
+                        newVal += val.substr(0, 3) + '-';
+                        val = val.substr(3);
+                    }
+                    if (val.length > 5) {
+                        newVal += val.substr(0, 3) + '-';
+                        newVal += val.substr(3, 2) + '-';
+                        val = val.substr(5);
+                    }
+                    newVal += val;
+                    this.value = newVal;
+                };
+                /******end SSN AUTOFORMAT**************************************************************************************/
+
+                /******begin PHONE AUTOFORMAT**************************************************************************************/
+                // APPLICANT PHONENUMBER FIELD HAS ID of 'phoneNumber1' -- Format the phone number as the user types it
+                document.getElementById('phoneNumber1').addEventListener('keyup', function (evt) {
+                    var phoneNumber1 = document.getElementById('phoneNumber1');
+                    var charCode = (evt.which) ? evt.which : evt.keyCode;
+                    phoneNumber1.value = phoneFormat(phoneNumber1.value);
+                });
+                // We need to manually format the phone number on page load
+                document.getElementById('phoneNumber1').value = phoneFormat(document.getElementById('phoneNumber1').value);
+
+
+                // EMPLOYER PHONENUMBER FIELD HAS ID of 'phoneNumber2' -- Format the phone number as the user types it
+                document.getElementById('phoneNumber2').addEventListener('keyup', function (evt) {
+                    var phoneNumber2 = document.getElementById('phoneNumber2');
+                    var charCode = (evt.which) ? evt.which : evt.keyCode;
+                    phoneNumber2.value = phoneFormat(phoneNumber2.value);
+                });
+                // We need to manually format the phone number on page load
+                document.getElementById('phoneNumber2').value = phoneFormat(document.getElementById('phoneNumber2').value);
+
+
+                // A function to determine if the pressed key is an integer
+                function numberPressed(evt) {
+                    var charCode = (evt.which) ? evt.which : evt.keyCode;
+                    if (charCode > 31 && (charCode < 48 || charCode > 57) && (charCode < 36 || charCode > 40)) {
+                        return false;
+                    }
+                    return true;
+                }
+                // A function to format text to look like a phone number
+                function phoneFormat(input) {
+                    // Strip all characters from the input except digits
+                    input = input.replace(/\D/g, '');
+                    // Trim the remaining input to ten characters, to preserve phone number format
+                    input = input.substring(0, 10);
+                    // Based upon the length of the string, we add formatting as necessary
+                    var size = input.length;
+                    if (size == 0) {
+                        input = input;
+                    } else if (size < 4) {
+                        input = '(' + input;
+                    } else if (size < 7) {
+                        input = '(' + input.substring(0, 3) + ') ' + input.substring(3, 6);
+                    } else {
+                        input = '(' + input.substring(0, 3) + ') ' + input.substring(3, 6) + ' - ' + input.substring(6, 10);
+                    }
+                    return input;
+                }
+                /******end PHONE AUTOFORMAT**************************************************************************************/
