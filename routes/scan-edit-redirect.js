@@ -1,7 +1,7 @@
 var express = require("express");
 var router = express.Router();
 
-/* render scan-edit-redirect.hbs when GET request automatically generated from browser scan-edit-redirect page. */
+/* render scan-edit-redirect.pug when GET request automatically generated from browser scan-edit-redirect page. */
 // '/scan-edit-redirect' is automatically assumed for '/'
 router.get("/", function (req, res, next) {
     res.render("scan-edit-redirect", {
@@ -10,8 +10,8 @@ router.get("/", function (req, res, next) {
 });
 
 //**Take POST request from browser & send POST response back after scanning, filtering & paginating through results*/
-//'/scan-edit-redirect/Editable' is automatically assumed for '/Editable', so in scan-edit-redirect.hbs, we have to send POST request
-//to /scan-edit-redirect/Editable ... confusing, but critical to understand.
+//'/scan-edit-redirect/ShowDB' is automatically assumed for '/ShowDB', so in scan-edit-redirect.pug, we have to send POST request
+//to /scan-edit-redirect/ShowDB ... confusing, but critical to understand.
 router.post("/ShowDB", function (req, res, next) {
     const postBody = req.body; //request.body is made by bodyparser.urlencoded, which parses the http message for sent data
     console.log("postBody=");
